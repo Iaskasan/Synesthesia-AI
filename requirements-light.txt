@@ -1,0 +1,21 @@
+# Core scientific stack
+numpy
+matplotlib
+scikit-learn
+
+# Audio processing
+librosa
+
+# Web app
+streamlit
+
+# Hugging Face diffusion models (CPU)
+diffusers
+transformers
+accelerate
+
+# PyTorch CPU-only
+torch==2.2.2+cpu
+torchvision==0.17.2+cpu
+torchaudio==2.2.2+cpu
+-f https://download.pytorch.org/whl/cpu/torch_stable.html

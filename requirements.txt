@@ -1,4 +1,20 @@
+# Core scientific stack
 numpy
 matplotlib
-librosa
 scikit-learn
+
+# Audio processing
+librosa
+
+# Web app
+streamlit
+
+# Hugging Face diffusion models
+diffusers
+transformers
+accelerate
+
+# PyTorch with GPU (CUDA 12.1) support
+torch
+torchvision
+torchaudio
