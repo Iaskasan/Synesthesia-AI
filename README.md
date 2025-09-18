@@ -72,3 +72,17 @@
 - Happy: “cartoonish sunny meadow, bright colors, cheerful mood”  
 
 ---
+
+## 💡 Ideas to implement
+
+- Accept multiple audio inputs
+  - Take output audio from the device
+  - Microphone output (oral prompting, singing...)
+- Suggest styles according to the music/mood of the audio
+- Suggest other musics that matches the mood/ambiance/style
+- Reverse app to discover new musics matching the criterias
+  - Prompt (Descriptions, mood, ambience) to music (existing ones)
+  - Images to music
+- Automatic or manual swap to image generation model (custom model from civitai for the best match to the style)
+
+--- 
