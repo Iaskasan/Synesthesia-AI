@@ -19,13 +19,17 @@ def plot_waveform(y, sr):
     plt.show()
 
 
-def plot_mfcc(mfccs):
+def plot_mfcc(mfccs, sr=22050):
     """
     Plot MFCCs as a heatmap.
     """
+
     plt.figure(figsize=(10, 4))
     librosa.display.specshow(mfccs, x_axis="time")
     plt.colorbar()
     plt.title("MFCC")
+    plt.ylabel("MFCC Coefficient")
+    plt.yticks(range(mfccs.shape[0]), range(1, mfccs.shape[0] + 1))  # Label 1–13
     plt.tight_layout()
     plt.show()
+

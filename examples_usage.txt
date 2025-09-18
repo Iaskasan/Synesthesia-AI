@@ -1,0 +1,2 @@
+to use the tests method in examples/ folder get to the root of the project and use the following command:
+python -m examples."name_of_the_method"
