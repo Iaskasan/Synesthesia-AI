@@ -1,2 +1,2 @@
-# Synthesia-AI
+# Synesthesia-AI
 Turn music into artistic images
