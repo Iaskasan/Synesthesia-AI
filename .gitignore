@@ -4,6 +4,7 @@ __pycache__/
 
 # Ignore virtual environments
 .venv/
+.venv-1/
 env/
 
 # Ignore data
@@ -12,3 +13,4 @@ data/processed/*
 
 # Ignore Jupyter checkpoints
 .ipynb_checkpoints/
+dataset/
