@@ -11,21 +11,19 @@ def plot_waveform(y, sr):
     """
     Plot the waveform of an audio signal.
     """
-    plt.figure(figsize=(12, 4))
-    librosa.display.waveshow(y, sr=sr)
-    plt.title("Waveform")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Amplitude")
-    plt.show()
+    fig, ax = plt.subplots(figsize=(12, 4))
+    librosa.display.waveshow(y, sr=sr, ax=ax)
+    ax.set(title="Waveform", xlabel="Time (s)", ylabel="Amplitude")
+    return fig
 
 
 def plot_mfcc(mfccs):
     """
     Plot MFCCs as a heatmap.
     """
-    plt.figure(figsize=(10, 4))
-    librosa.display.specshow(mfccs, x_axis="time")
-    plt.colorbar()
-    plt.title("MFCC")
-    plt.tight_layout()
-    plt.show()
+    fig, ax = plt.subplots(figsize=(10, 4))
+    image = librosa.display.specshow(mfccs, x_axis="time", ax=ax)
+    fig.colorbar(image, ax=ax)
+    ax.set_title("MFCC")
+    fig.tight_layout()
+    return fig

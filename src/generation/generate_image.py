@@ -3,11 +3,23 @@
 Generate images using Stable Diffusion (via HuggingFace diffusers).
 """
 
-from diffusers import StableDiffusionPipeline
+from functools import lru_cache
+
 import torch
+from diffusers import StableDiffusionPipeline
 
 
-def generate_image(prompt: str, model_id="runwayml/stable-diffusion-v1-5"):
+@lru_cache(maxsize=2)
+def _load_pipeline(model_id: str, device: str):
+    dtype = torch.float16 if device == "cuda" else torch.float32
+    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=dtype)
+    return pipe.to(device)
+
+
+def generate_image(
+    prompt: str,
+    model_id: str = "runwayml/stable-diffusion-v1-5",
+):
     """
     Generate an image from a text prompt.
 
@@ -18,9 +30,8 @@ def generate_image(prompt: str, model_id="runwayml/stable-diffusion-v1-5"):
     Returns:
         PIL.Image: Generated image.
     """
-    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
-    pipe = pipe.to("cuda" if torch.cuda.is_available() else "cpu")
-
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    pipe = _load_pipeline(model_id, device)
     image = pipe(prompt).images[0]
     return image
 

@@ -14,3 +14,14 @@ data/processed/*
 # Ignore Jupyter checkpoints
 .ipynb_checkpoints/
 dataset/
+
+# Generated model and application artifacts
+artifacts/
+outputs/
+*.pth
+*.pt
+*.joblib
+
+# Local secrets and tooling
+.env
+.coverage

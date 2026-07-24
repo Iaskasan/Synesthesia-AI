@@ -3,22 +3,35 @@
 Module for loading audio files.
 """
 
+from pathlib import Path
+from typing import BinaryIO
+
 import librosa
 
 
-def load_audio(file_path: str, duration: int = 30):
+def load_audio(
+    source: str | Path | BinaryIO,
+    duration: float = 30,
+    sample_rate: int = 22_050,
+):
     """
     Load an audio file.
 
     Args:
-        file_path (str): Path to the audio file (e.g., .mp3, .wav).
+        source: Path or uploaded file containing supported audio.
         duration (int): Number of seconds to load (default: 30s).
+        sample_rate: Target sampling rate, for consistent model features.
 
     Returns:
         y (np.ndarray): Audio time series.
         sr (int): Sampling rate.
     """
-    y, sr = librosa.load(file_path, duration=duration)
+    if duration <= 0:
+        raise ValueError("Duration must be positive.")
+
+    y, sr = librosa.load(source, sr=sample_rate, mono=True, duration=duration)
+    if y.size == 0:
+        raise ValueError("The audio excerpt is empty.")
     return y, sr
 
 

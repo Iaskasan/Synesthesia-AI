@@ -1,88 +1,91 @@
-# 🎨 Synesthesia AI
+# Synesthesia AI
 
-**Goal**: Build a system that listens to a song, extracts its mood/tempo/features, and generates an AI artwork that matches it.   
-**MVP**: Upload a song → system extracts tempo & mood → system generates a Stable Diffusion image.  
+Synesthesia AI turns a short audio excerpt into visual artwork:
 
----
+`audio → audio features → mood/style tags → image prompt → diffusion model`
 
-## 🚀 Roadmap
+The first MVP is a web app where a user uploads an excerpt, reviews the
+detected musical characteristics, adjusts the visual direction, and generates
+one image.
 
-### Phase 1: Foundations (1–2 months)
-- [ ] Install libraries (librosa, numpy, matplotlib, sklearn)  
-- [ ] Load and visualize audio waveform  
-- [ ] Extract tempo and MFCCs  
-- [ ] Understand features (plot + interpret)  
+## Current state
 
-### Phase 2: Mood Classification (3–4 months)
-- [ ] Build a small dataset of songs (with mood/genre labels)  
-- [ ] Train ML models (logistic regression, random forest, etc.)  
-- [ ] Evaluate models (accuracy, confusion matrix)  
-- [ ] Visualize with PCA/t-SNE  
+Implemented:
 
-### Phase 3: Image Generation (5–6 months)
-- [ ] Connect mood classifier → text prompt builder  
-- [ ] Generate images with Stable Diffusion (diffusers library or API)  
-- [ ] Test different prompt templates (“dreamy watercolor”, “cyberpunk neon”, etc.)  
+- audio upload and normalized 30-second loading;
+- tempo, energy, spectral, chroma, and MFCC feature extraction;
+- structured prompt construction from musical and user-selected attributes;
+- local Stable Diffusion integration;
+- a Streamlit interface;
+- unit tests for the feature and prompt contracts.
 
-### Phase 4: Multi-Frame Generation (7–8 months)
-- [ ] Split audio into chunks (10–20s)  
-- [ ] Generate one image per chunk  
-- [ ] Experiment with smooth transitions between images  
+The mood selector is deliberately manual for now. It will be replaced by the
+first trained multi-label classifier; the UI does not pretend that a model has
+already made that prediction.
 
-### Phase 5: Final Polish (9 months)
-- [ ] Build a simple demo app (Streamlit/Gradio)  
-- [ ] Allow user to upload a song + pick style  
-- [ ] Generate final visuals + music  
-- [ ] Prepare presentation + documentation  
+## Architecture
 
----
+```text
+src/audio/          loading, feature extraction, visualization
+src/ml/             training, evaluation, and saved-model inference
+src/generation/     prompt construction and image model adapter
+src/app/            Streamlit presentation layer
+tests/              fast tests that do not require the downloaded dataset
+artifacts/          local trained models (ignored by Git)
+outputs/            generated images and reports (ignored by Git)
+```
 
-## ✅ Task Board
+Training belongs outside the web request. A training command will read the
+MTG-Jamendo annotations and audio, build feature rows, train and evaluate a
+multi-label model, then save a versioned artifact. The app should only load
+that artifact for inference.
 
-| To Do | In Progress | Done |
-|-------|-------------|------|
-| Set up environment |  | Installed librosa |
-| Load sample song |  |  |
-| Extract tempo/MFCCs |  |  |
+## Run locally
 
----
+Create an environment and install the dependencies:
 
-## 🧠 Knowledge Notes
-- **Tempo** = beats per minute.  
-- **MFCCs** = a way to capture timbre of sound.  
-- **PCA** = reduces data into 2D/3D for visualization.  
-- **Confusion matrix** = compares predictions vs reality.  
-- **Stable Diffusion** = AI that generates images from text prompts.  
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
----
+Run tests:
 
-## 🧪 Experiments
+```bash
+python -m pytest
+```
 
-| Date | Dataset | Model | Features | Accuracy | Notes |
-|------|---------|-------|----------|----------|-------|
-| 2025-01-15 | 10 songs | Logistic Regression | Tempo + MFCCs | 65% | Small dataset, need more samples |
+Start the app:
 
----
+```bash
+streamlit run src/app/app.py
+```
 
-## 🎨 Prompt Bank
+The first image generation downloads model weights and can be slow. A
+CUDA-capable GPU is strongly recommended.
 
-- Calm: “dreamy watercolor landscape, soft pastel colors”  
-- Energetic: “abstract neon cyberpunk city, sharp strokes, vibrant”  
-- Dark: “misty gothic forest, monochrome, dramatic shadows”  
-- Happy: “cartoonish sunny meadow, bright colors, cheerful mood”  
+## Dataset
 
----
+The repository includes the MTG-Jamendo dataset toolkit as a vendored source
+tree. Downloaded audio belongs in the ignored `dataset/` directory and must
+not be committed. See [HowTo.md](HowTo.md) for the current download command.
 
-## 💡 Ideas to implement
+## Delivery roadmap
 
-- Accept multiple audio inputs
-  - Take output audio from the device
-  - Microphone output (oral prompting, singing...)
-- Suggest styles according to the music/mood of the audio
-- Suggest other musics that matches the mood/ambiance/style
-- Reverse app to discover new musics matching the criterias
-  - Prompt (Descriptions, mood, ambience) to music (existing ones)
-  - Images to music
-- Automatic or manual swap to image generation model (custom model from civitai for the best match to the style)
+1. **Working audio-to-prompt slice** — complete the upload, analysis, prompt,
+   and generation path with clear error handling.
+2. **Dataset pipeline** — index MTG-Jamendo tracks and labels, extract cached
+   fixed-size features, and create reproducible train/validation/test inputs.
+3. **Baseline model** — train a multi-label mood/genre classifier, record
+   precision/recall/F1, and save the model with its label and feature schema.
+4. **Inference integration** — replace the manual mood field with ranked tags
+   and confidence scores while retaining user control.
+5. **Generation quality** — add seeds, negative prompts, selectable model
+   adapters, and reproducible output metadata.
+6. **Product polish** — background jobs, progress reporting, history, and
+   deployment.
 
---- 
+Longer-term ideas such as live microphone input, multi-frame visuals, and
+music recommendation remain useful, but are intentionally outside the first
+MVP.

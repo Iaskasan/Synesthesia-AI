@@ -12,7 +12,7 @@ def extract_tempo(y, sr):
     Estimate tempo (BPM) of an audio signal.
     """
     tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-    return tempo
+    return float(np.asarray(tempo).squeeze())
 
 
 def extract_mfcc(y, sr, n_mfcc=13):
