@@ -1,48 +1,144 @@
-# Synesthesia AI
+# SynesthesiaAI
 
-Synesthesia AI turns a short audio excerpt into visual artwork:
+**Transforming music into visual worlds through mood recognition**
 
-`audio → audio features → mood/style tags → image prompt → diffusion model`
+SynesthesiaAI is a machine-learning portfolio project that converts a short
+music excerpt into an original still image. It analyzes the audio, predicts
+musical mood and theme tags, calculates signal characteristics, translates
+that structured interpretation into an editable image prompt, and sends the
+prompt to a pretrained diffusion model.
 
-The first MVP is a web app where a user uploads an excerpt, reviews the
-detected musical characteristics, adjusts the visual direction, and generates
-one image.
+There is no single objectively correct image for a piece of music.
+SynesthesiaAI is therefore designed as a transparent, user-controlled
+interpretation rather than a black-box generator.
 
-## Current state
+For the complete rationale, scope, ethics, and delivery plan, see the
+[project pitch](SynesthesiaAI%20Project%20Pitch.md).
 
-Implemented:
+## Portfolio MVP
 
-- audio upload and normalized 30-second loading;
-- tempo, energy, spectral, chroma, and MFCC feature extraction;
-- structured prompt construction from musical and user-selected attributes;
-- local Stable Diffusion integration;
-- a Streamlit interface;
-- unit tests for the feature and prompt contracts.
+The committed MVP will:
 
-The mood selector is deliberately manual for now. It will be replaced by the
-first trained multi-label classifier; the UI does not pretend that a model has
-already made that prediction.
+1. accept one common audio file and select a 30-second excerpt;
+2. predict a focused set of mood or theme tags with confidence scores;
+3. calculate tempo, energy, loudness, and spectral brightness;
+4. let the user review, remove, or emphasize detected tags;
+5. expose controls for visual style, abstraction, music influence, aspect
+   ratio, tag count, seed, and variations;
+6. compose a visible and editable image-generation prompt;
+7. generate one downloadable still image with Stable Diffusion or SDXL; and
+8. export the analysis settings, prompt, model versions, and seed required to
+   reproduce the result.
 
-## Architecture
+Real-time visuals, video, full-song storyboards, user accounts, and
+image-to-music discovery are outside the portfolio MVP.
+
+## Machine-learning objective
+
+The main experiment compares two multilabel audio-classification approaches:
+
+- **Baseline:** log-mel or hand-crafted audio features with a small classifier.
+- **Main model:** frozen CLAP audio embeddings with a trainable multilabel
+  classification head.
+
+The models will be evaluated on the official held-out test split using:
+
+- macro and micro F1;
+- precision-recall AUC;
+- per-label precision, recall, and F1;
+- inference time; and
+- qualitative error analysis.
+
+Per-label thresholds, class weighting, or focal loss may be used when label
+imbalance causes rare tags to be ignored. The final model will be selected
+from measured results rather than model complexity.
+
+## Data
+
+The primary dataset is the
+[MTG-Jamendo mood/theme subset](https://mtg.github.io/mtg-jamendo-dataset/),
+which contains 18,486 tracks and 59 mood/theme tags.
+
+For the portfolio project, the label space will be reduced to approximately
+12–20 frequent and visually meaningful concepts. Candidate labels include
+calm, dark, dreamy, energetic, epic, happy, melancholic, romantic, and
+uplifting. The final list will be selected after frequency analysis.
+
+The data pipeline will:
+
+- preserve track IDs, artist splits, labels, source information, and licences;
+- use the official train, validation, and test partitions;
+- audit artist leakage, corrupted files, and label imbalance;
+- produce deterministic 30-second excerpts;
+- cache log-mel features or CLAP embeddings; and
+- version metadata, split definitions, configurations, and manifests.
+
+Audio files, cached features, generated outputs, and model weights are local
+artifacts and are excluded from Git.
+
+See [HowTo.md](HowTo.md) for the current dataset download command.
+
+## Application pipeline
 
 ```text
-src/audio/          loading, feature extraction, visualization
-src/ml/             training, evaluation, and saved-model inference
-src/generation/     prompt construction and image model adapter
-src/app/            Streamlit presentation layer
-tests/              fast tests that do not require the downloaded dataset
-artifacts/          local trained models (ignored by Git)
-outputs/            generated images and reports (ignored by Git)
+audio excerpt
+    ↓
+validation and deterministic preprocessing
+    ↓
+tempo, energy, loudness, and spectral features
+    +
+multilabel mood/theme classifier
+    ↓
+editable tags and confidence scores
+    ↓
+structured prompt schema + user controls
+    ↓
+constrained language-model composer
+    or deterministic template fallback
+    ↓
+Stable Diffusion / SDXL
+    ↓
+image + reproducibility metadata
 ```
 
-Training belongs outside the web request. A training command will read the
-MTG-Jamendo annotations and audio, build feature rows, train and evaluate a
-multi-label model, then save a versioned artifact. The app should only load
-that artifact for inference.
+The project-trained model analyzes the music. The language model is only
+responsible for translating structured tags and settings into concise visual
+language. The diffusion model remains pretrained.
 
-## Run locally
+## Repository structure
 
-Create an environment and install the dependencies:
+```text
+src/audio/          audio loading, features, and visualization
+src/ml/             training, evaluation, and saved-model inference
+src/generation/     prompt composition and diffusion integration
+src/app/            Gradio desktop web application
+tests/              dataset-independent automated tests
+notebooks/          exploration and analysis
+artifacts/          local trained models and feature caches (ignored)
+outputs/            generated images and reports (ignored)
+dataset/            downloaded audio (ignored)
+```
+
+Model training runs separately from the web application. Training produces a
+versioned artifact containing the classifier, label mapping, thresholds,
+feature schema, and evaluation metadata. The application only loads that
+artifact for inference.
+
+## Platform
+
+- Windows 11 host with WSL2 Ubuntu
+- Python and PyTorch
+- librosa or Essentia for audio processing
+- Hugging Face Transformers and Diffusers
+- Gradio desktop browser interface
+- target GPU: NVIDIA RTX 4090 with 24 GB VRAM
+
+The definition-of-done performance target is a complete result in under
+90 seconds on the target system.
+
+## Local development
+
+Create and activate an environment:
 
 ```bash
 python -m venv .venv
@@ -50,42 +146,86 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Run tests:
+Run the automated tests:
 
 ```bash
 python -m pytest
 ```
 
-Start the app:
+The application launch command will be added when the Gradio interface
+replaces the current prototype.
 
-```bash
-streamlit run src/app/app.py
-```
+## Delivery plan
 
-The first image generation downloads model weights and can be slow. A
-CUDA-capable GPU is strongly recommended.
+### Week 1 — Data audit and baseline
 
-## Dataset
+- review licences, file integrity, official splits, and label frequencies;
+- select and freeze the 12–20-label target space;
+- complete deterministic preprocessing and caching;
+- train and evaluate the handcrafted-feature baseline; and
+- freeze the MVP feature scope.
 
-The repository includes the MTG-Jamendo dataset toolkit as a vendored source
-tree. Downloaded audio belongs in the ignored `dataset/` directory and must
-not be committed. See [HowTo.md](HowTo.md) for the current download command.
+### Week 2 — Pretrained audio representations
 
-## Delivery roadmap
+- extract and cache CLAP embeddings;
+- train the multilabel classification head;
+- handle imbalance and tune per-label thresholds; and
+- select a checkpoint using held-out metrics and error analysis.
 
-1. **Working audio-to-prompt slice** — complete the upload, analysis, prompt,
-   and generation path with clear error handling.
-2. **Dataset pipeline** — index MTG-Jamendo tracks and labels, extract cached
-   fixed-size features, and create reproducible train/validation/test inputs.
-3. **Baseline model** — train a multi-label mood/genre classifier, record
-   precision/recall/F1, and save the model with its label and feature schema.
-4. **Inference integration** — replace the manual mood field with ranked tags
-   and confidence scores while retaining user control.
-5. **Generation quality** — add seeds, negative prompts, selectable model
-   adapters, and reproducible output metadata.
-6. **Product polish** — background jobs, progress reporting, history, and
-   deployment.
+### Week 3 — Creative pipeline
 
-Longer-term ideas such as live microphone input, multi-frame visuals, and
-music recommendation remain useful, but are intentionally outside the first
-MVP.
+- integrate calculated audio characteristics and model inference;
+- implement the structured prompt schema;
+- add the constrained language-model composer and template fallback;
+- integrate one tested diffusion checkpoint; and
+- build the Gradio controls and export flow.
+
+### Week 4 — Evaluation and delivery
+
+- compare language-model prompts with deterministic templates;
+- conduct a small, anonymous human evaluation;
+- complete accessibility, reliability, and reproducibility checks; and
+- prepare the final report, demo, documentation, and presentation.
+
+## Evaluation beyond classifier accuracy
+
+At least 10 voluntary testers will rate a randomized set of outputs for:
+
+- perceived music–image consistency; and
+- perceived user control.
+
+The project will compare language-model prompts against deterministic
+templates using the same unseen excerpts and visual settings. Success is
+defined by correspondence, robustness, transparency, and reproducibility—not
+only by image aesthetics.
+
+## Ethics and privacy
+
+- Only recordings distributed for research under documented licences will be
+  used, and licence metadata will be preserved.
+- Mood predictions are presented as a detected interpretation, not an
+  objective description of a listener's emotions.
+- Weak labels and representation limitations will be reported.
+- Prompt generation will avoid requests to imitate living artists.
+- Generated images will be identified as AI-generated.
+- Uploaded audio remains local and is deleted after processing unless the
+  user explicitly saves it.
+- The project does not collect identity, listening history, or unnecessary
+  analytics.
+- Large pretrained models remain frozen, and cached embeddings reduce repeated
+  computation.
+
+## Current status
+
+The repository currently contains an early audio-to-prompt prototype:
+
+- normalized audio loading;
+- tempo, energy, spectral, chroma, and MFCC extraction;
+- deterministic prompt construction;
+- local diffusion integration; and
+- dataset-independent tests.
+
+The current interface and manual mood selector are temporary scaffolding.
+The next milestone is the MTG-Jamendo data audit, label shortlist, and
+reproducible baseline pipeline, followed by the Gradio application described
+above.
