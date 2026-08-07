@@ -152,6 +152,20 @@ Run the automated tests:
 python -m pytest
 ```
 
+Train a quick multilabel baseline against an extracted MTG-Jamendo dataset
+mounted from Windows (for example, drive `G:` in WSL):
+
+```bash
+python -m src.ml.train_baseline \
+  --dataset-root /mnt/g/AI/Datasets \
+  --max-tracks 100
+```
+
+Remove `--max-tracks 100` for a full run. The trainer uses the official
+train/validation/test split, chooses the 12 most frequent training labels by
+default, and writes the model and evaluation report to `artifacts/baseline/`.
+The expected extracted layout is `/mnt/g/AI/Datasets/00/7400.low.mp3`.
+
 The application launch command will be added when the Gradio interface
 replaces the current prototype.
 

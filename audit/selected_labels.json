@@ -1,0 +1,50 @@
+{
+  "status": "proposed_not_frozen",
+  "selection_rule": "Pitch-aligned visually meaningful labels present in the dataset; review frequencies and per-label viability before freezing.",
+  "labels": [
+    {
+      "tag": "happy",
+      "total": 1657
+    },
+    {
+      "tag": "energetic",
+      "total": 1357
+    },
+    {
+      "tag": "emotional",
+      "total": 1271
+    },
+    {
+      "tag": "dark",
+      "total": 1202
+    },
+    {
+      "tag": "epic",
+      "total": 982
+    },
+    {
+      "tag": "dream",
+      "total": 951
+    },
+    {
+      "tag": "sad",
+      "total": 749
+    },
+    {
+      "tag": "uplifting",
+      "total": 693
+    },
+    {
+      "tag": "romantic",
+      "total": 627
+    },
+    {
+      "tag": "calm",
+      "total": 457
+    },
+    {
+      "tag": "melancholic",
+      "total": 441
+    }
+  ]
+}

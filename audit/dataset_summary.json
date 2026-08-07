@@ -1,0 +1,21 @@
+{
+  "split_index": 0,
+  "tracks": {
+    "train": 9949,
+    "validation": 3802,
+    "test": 4231
+  },
+  "unique_tracks": 17982,
+  "unique_labels": 56,
+  "audio_files_in_inventory": 18486,
+  "missing_audio_files": 0,
+  "archives": 0,
+  "expected_archives": 100,
+  "missing_archives": 100,
+  "archive_bytes": 0,
+  "artist_leakage_counts": {
+    "train_validation": 0,
+    "train_test": 0,
+    "validation_test": 0
+  }
+}
