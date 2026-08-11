@@ -25,3 +25,9 @@ outputs/
 # Local secrets and tooling
 .env
 .coverage
+
+# Datasets and models
+*.h5
+/data/
+dataset/
+datasets/

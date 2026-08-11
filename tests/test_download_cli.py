@@ -23,7 +23,7 @@ def test_build_parser_accepts_hyphenated_dataset_and_outputdir_alias():
         "--from",
         "mtg-fast",
         "--outputdir",
-        "/tmp/out",
+        "/mnt/c/AI/dataset",
         "--unpack",
         "--remove",
     ])
@@ -31,7 +31,7 @@ def test_build_parser_accepts_hyphenated_dataset_and_outputdir_alias():
     assert args.dataset == "autotagging_moodtheme"
     assert args.type == "audio-low"
     assert args.download_from == "mtg-fast"
-    assert args.outputdir == "/tmp/out"
+    assert args.outputdir == "/mnt/c/AI/dataset"
     assert args.unpack is True
     assert args.remove is True
 
@@ -60,3 +60,8 @@ def test_download_from_mtg_resumes_from_partial_download(tmp_path, monkeypatch):
 
     assert output.read_bytes() == b"abcdef"
     assert not part_file.exists()
+
+if __name__ == "__main__":
+    test_build_parser_accepts_hyphenated_dataset_and_outputdir_alias()
+    test_download_from_mtg_resumes_from_partial_download(Path("/tmp"), None)
+    print("All tests passed.")
