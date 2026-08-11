@@ -11,7 +11,8 @@
   "missing_audio_files": 0,
   "archives": 0,
   "expected_archives": 100,
-  "missing_archives": 100,
+  "missing_archives": 0,
+  "source_archives_not_retained": 100,
   "archive_bytes": 0,
   "artist_leakage_counts": {
     "train_validation": 0,

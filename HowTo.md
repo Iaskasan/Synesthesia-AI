@@ -6,6 +6,23 @@ cd mtg-jamendo-dataset
 cd ..
 ```
 
+Audit the extracted dataset before preprocessing. This verifies the audio
+inventory and official splits, checks for artist leakage, records label
+frequencies, and writes the frozen 20-label baseline selection:
+
+```bash
+python -m src.data.audit_dataset \
+  --dataset-root /mnt/c/AI/dataset \
+  --metadata-root mtg-jamendo-dataset/data \
+  --output-dir audit
+```
+
+The audit reports are written to `audit/`, including
+`dataset_summary.json`, `label_frequencies.csv`, `selected_labels.json`, and
+the missing-audio, source-archive, and artist-leakage reports. Archives removed
+by `--remove` are recorded as not retained and are not reported as missing
+when all expected audio files are available.
+
 Run a small preprocessing smoke test first. This writes log-mel features and
 manifests outside the repository:
 

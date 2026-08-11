@@ -73,6 +73,43 @@ The data pipeline will:
 - cache log-mel features or CLAP embeddings; and
 - version metadata, split definitions, configurations, and manifests.
 
+### Selected mood/theme labels
+
+The initial classifier will use the following 20 labels:
+
+```text
+happy, energetic, relaxing, emotional, dark,
+epic, dream, inspiring, sad, meditative,
+uplifting, motivational, romantic, fun, calm,
+adventure, melancholic, dramatic, powerful, hopeful
+```
+
+These labels were selected from the official training split using three
+criteria:
+
+- **Visual usefulness:** each label can produce a meaningful change in an
+  image's atmosphere, composition, colour, lighting, or subject matter.
+- **Dataset support:** the labels occur in every official split and generally
+  have enough training examples for an initial multilabel classifier.
+- **Coverage:** the set spans positive and negative emotion, energy, ambience,
+  narrative scale, and reflective moods instead of concentrating on a single
+  emotional family.
+
+Related labels such as `sad` and `melancholic`, or `calm` and `meditative`,
+remain separate because they can support visibly different interpretations.
+Context and usage tags such as `advertising`, `corporate`, `film`, and
+`trailer` were excluded because they describe where music may be used rather
+than how it feels. Primarily musical descriptors such as `melodic`, `slow`,
+and `fast` were also excluded because tempo, energy, and other audio
+characteristics are calculated separately by the application.
+
+`powerful` and `hopeful` are the least represented selected labels in the
+training split, with 106 and 137 examples respectively. Training will
+therefore evaluate class weighting or focal loss, tune thresholds per label,
+and report per-label metrics. The vocabulary will only be revised after the
+baseline's validation results and error analysis, rather than from test-set
+performance.
+
 Audio files, cached features, generated outputs, and model weights are local
 artifacts and are excluded from Git.
 

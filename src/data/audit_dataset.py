@@ -13,20 +13,28 @@ from typing import Iterable
 
 
 SPLIT_NAMES = ("train", "validation", "test")
-VISUAL_CANDIDATES = {
-    "calm",
-    "dark",
-    "dream",
-    "dreamy",
-    "emotional",
-    "energetic",
-    "epic",
+SELECTED_LABELS = (
     "happy",
-    "melancholic",
-    "romantic",
+    "energetic",
+    "relaxing",
+    "emotional",
+    "dark",
+    "epic",
+    "dream",
+    "inspiring",
     "sad",
+    "meditative",
     "uplifting",
-}
+    "motivational",
+    "romantic",
+    "fun",
+    "calm",
+    "adventure",
+    "melancholic",
+    "dramatic",
+    "powerful",
+    "hopeful",
+)
 
 
 @dataclass(frozen=True)
@@ -177,9 +185,15 @@ def run_audit(
             if line.strip() and len(line.split(maxsplit=1)) == 2
         ]
     present_archive_names = {path.name for path in archive_paths}
-    missing_archives = [
+    absent_archives = [
         name for name in expected_archives if name not in present_archive_names
     ]
+    # With download.py --unpack --remove, source archives are intentionally
+    # deleted after their tracks pass checksum validation. If every expected
+    # audio file is available, absent archives are therefore not missing data.
+    extraction_complete = not missing_rows
+    missing_archives = [] if extraction_complete else absent_archives
+    source_archives_not_retained = absent_archives if extraction_complete else []
     summary = {
         "split_index": split_index,
         "tracks": {name: len(tracks) for name, tracks in splits.items()},
@@ -192,25 +206,29 @@ def run_audit(
         "archives": len(archive_paths),
         "expected_archives": len(expected_archives) or None,
         "missing_archives": len(missing_archives),
+        "source_archives_not_retained": len(source_archives_not_retained),
         "archive_bytes": sum(path.stat().st_size for path in archive_paths),
         "artist_leakage_counts": {
             pair: len(values) for pair, values in leakage.items()
         },
     }
-    proposed = [
-        row
-        for row in frequency_rows
-        if row["tag"] in VISUAL_CANDIDATES
-    ]
+    frequencies_by_tag = {row["tag"]: row for row in frequency_rows}
     label_proposal = {
-        "status": "proposed_not_frozen",
+        "status": "frozen_for_baseline",
         "selection_rule": (
-            "Pitch-aligned visually meaningful labels present in the dataset; "
-            "review frequencies and per-label viability before freezing."
+            "Visually meaningful mood/theme labels with support across the official "
+            "splits and broad emotional coverage. Semantically related labels remain "
+            "separate for the baseline and will be reviewed using validation metrics."
         ),
         "labels": [
-            {"tag": row["tag"], "total": row["total"]}
-            for row in proposed
+            {
+                "tag": tag,
+                "train": frequencies_by_tag.get(tag, {}).get("train", 0),
+                "validation": frequencies_by_tag.get(tag, {}).get("validation", 0),
+                "test": frequencies_by_tag.get(tag, {}).get("test", 0),
+                "total": frequencies_by_tag.get(tag, {}).get("total", 0),
+            }
+            for tag in SELECTED_LABELS
         ],
     }
 
@@ -238,6 +256,11 @@ def run_audit(
         output_dir / "missing_archives.csv",
         ("archive",),
         ({"archive": name} for name in missing_archives),
+    )
+    _write_csv(
+        output_dir / "source_archives_not_retained.csv",
+        ("archive",),
+        ({"archive": name} for name in source_archives_not_retained),
     )
     return summary
 

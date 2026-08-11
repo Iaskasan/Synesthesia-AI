@@ -1,50 +1,146 @@
 {
-  "status": "proposed_not_frozen",
-  "selection_rule": "Pitch-aligned visually meaningful labels present in the dataset; review frequencies and per-label viability before freezing.",
+  "status": "frozen_for_baseline",
+  "selection_rule": "Visually meaningful mood/theme labels with support across the official splits and broad emotional coverage. Semantically related labels remain separate for the baseline and will be reviewed using validation metrics.",
   "labels": [
     {
       "tag": "happy",
+      "train": 927,
+      "validation": 392,
+      "test": 338,
       "total": 1657
     },
     {
       "tag": "energetic",
+      "train": 857,
+      "validation": 233,
+      "test": 267,
       "total": 1357
     },
     {
+      "tag": "relaxing",
+      "train": 763,
+      "validation": 278,
+      "test": 309,
+      "total": 1350
+    },
+    {
       "tag": "emotional",
+      "train": 499,
+      "validation": 357,
+      "test": 415,
       "total": 1271
     },
     {
       "tag": "dark",
+      "train": 620,
+      "validation": 231,
+      "test": 351,
       "total": 1202
     },
     {
       "tag": "epic",
+      "train": 601,
+      "validation": 167,
+      "test": 214,
       "total": 982
     },
     {
       "tag": "dream",
+      "train": 498,
+      "validation": 207,
+      "test": 246,
       "total": 951
     },
     {
+      "tag": "inspiring",
+      "train": 561,
+      "validation": 136,
+      "test": 180,
+      "total": 877
+    },
+    {
       "tag": "sad",
+      "train": 375,
+      "validation": 147,
+      "test": 227,
       "total": 749
     },
     {
+      "tag": "meditative",
+      "train": 374,
+      "validation": 161,
+      "test": 207,
+      "total": 742
+    },
+    {
       "tag": "uplifting",
+      "train": 449,
+      "validation": 139,
+      "test": 105,
       "total": 693
     },
     {
+      "tag": "motivational",
+      "train": 372,
+      "validation": 75,
+      "test": 188,
+      "total": 635
+    },
+    {
       "tag": "romantic",
+      "train": 363,
+      "validation": 118,
+      "test": 146,
       "total": 627
     },
     {
+      "tag": "fun",
+      "train": 220,
+      "validation": 187,
+      "test": 73,
+      "total": 480
+    },
+    {
       "tag": "calm",
+      "train": 267,
+      "validation": 104,
+      "test": 86,
       "total": 457
     },
     {
+      "tag": "adventure",
+      "train": 264,
+      "validation": 78,
+      "test": 106,
+      "total": 448
+    },
+    {
       "tag": "melancholic",
+      "train": 228,
+      "validation": 111,
+      "test": 102,
       "total": 441
+    },
+    {
+      "tag": "dramatic",
+      "train": 195,
+      "validation": 34,
+      "test": 88,
+      "total": 317
+    },
+    {
+      "tag": "powerful",
+      "train": 106,
+      "validation": 47,
+      "test": 85,
+      "total": 238
+    },
+    {
+      "tag": "hopeful",
+      "train": 137,
+      "validation": 36,
+      "test": 43,
+      "total": 216
     }
   ]
 }
