@@ -28,8 +28,8 @@ manifests outside the repository:
 
 ```bash
 python -m src.data.preprocess_dataset \
-  --dataset-root /mnt/c/AI/dataset \
-  --output-root /mnt/c/AI/dataset/processed/logmel-v1 \
+  --dataset-root /mnt/g/AI/datasets \
+  --output-root /mnt/g/AI/datasets/processed/logmel-v1 \
   --max-tracks 5
 ```
 
@@ -38,8 +38,8 @@ is resumable, so existing feature files are skipped:
 
 ```bash
 python -m src.data.preprocess_dataset \
-  --dataset-root /mnt/c/AI/dataset \
-  --output-root /mnt/c/AI/dataset/processed/logmel-v1 \
+  --dataset-root /mnt/g/AI/datasets \
+  --output-root /mnt/g/AI/datasets/processed/logmel-v1 \
   --workers 4
 ```
 
