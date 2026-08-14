@@ -203,6 +203,28 @@ train/validation/test split, chooses the 12 most frequent training labels by
 default, and writes the model and evaluation report to `artifacts/baseline/`.
 The expected extracted layout is `/mnt/g/AI/Datasets/00/7400.low.mp3`.
 
+Extract deterministic frozen CLAP embeddings from the completed preprocessing
+manifest, then train the 20-label transfer-learning head:
+
+```bash
+python -m src.ml.extract_clap_embeddings \
+  --manifest /mnt/g/AI/datasets/processed/logmel-v1/manifest.csv \
+  --dataset-root /mnt/g/AI/datasets \
+  --output-root /mnt/g/AI/datasets/processed/clap-music-v1 \
+  --batch-size 4
+
+python -m src.ml.train_clap_head \
+  --embedding-root /mnt/g/AI/datasets/processed/clap-music-v1
+```
+
+The extractor uses CLAP's own 48 kHz processor on three fixed 10-second crops,
+averages their embeddings, and resumes past completed tracks. Use
+`--max-tracks 30` for an initial end-to-end smoke test. If GPU memory allows,
+increase `--batch-size`; reduce it if extraction runs out of memory.
+The head trainer defaults to the `liblinear` binary solver and records optimizer
+iterations per label in `metrics.json`, including any labels that reached the
+iteration limit.
+
 The application launch command will be added when the Gradio interface
 replaces the current prototype.
 
