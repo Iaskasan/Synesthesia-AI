@@ -57,6 +57,40 @@ def test_extract_embeddings_resumes_and_writes_trainable_manifest(tmp_path):
     assert y.tolist() == [[1, 0]]
 
 
+def test_extract_embeddings_can_upgrade_cache_with_crop_embeddings(tmp_path):
+    dataset = tmp_path / "audio"
+    dataset.mkdir()
+    sf.write(dataset / "one.wav", np.zeros(24, dtype=np.float32), 2)
+    manifest = tmp_path / "manifest.csv"
+    with manifest.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=(
+            "split", "track_id", "artist_id", "audio_path", "feature_path", "tags"
+        ))
+        writer.writeheader()
+        writer.writerow({
+            "split": "train", "track_id": "track_1", "artist_id": "artist_1",
+            "audio_path": "one.wav", "feature_path": "features/train/00/track_1.npz",
+            "tags": json.dumps(["calm"]),
+        })
+    output = tmp_path / "clap"
+    config = ClapEmbeddingConfig("fake", 2, 12, 4)
+    calls = []
+
+    def encoder(crops):
+        calls.append(len(crops))
+        return np.eye(3, dtype=np.float32)
+
+    extract_embeddings(manifest, dataset, output, config, encoder=encoder)
+    upgraded = extract_embeddings(
+        manifest, dataset, output, config, encoder=encoder,
+        store_crop_embeddings=True,
+    )
+    assert upgraded["processed"] == 1
+    assert calls == [3, 3]
+    with np.load(output / "embeddings/train/00/track_1.npz") as archive:
+        assert archive["crop_embeddings"].shape == (3, 3)
+
+
 def test_parse_tags_rejects_non_list_json():
     try:
         parse_tags('"calm"')

@@ -63,12 +63,17 @@ def embedding_path(output_root: Path, row: dict[str, str]) -> Path:
     return output_root / "embeddings" / parent / f"{row['track_id']}.npz"
 
 
-def _write_embedding(path: Path, embedding: np.ndarray) -> None:
+def _write_embedding(
+    path: Path, embedding: np.ndarray, crop_embeddings: np.ndarray | None = None
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + f".{os.getpid()}.tmp")
     try:
         with temporary.open("wb") as handle:
-            np.savez_compressed(handle, embedding=embedding)
+            values = {"embedding": embedding}
+            if crop_embeddings is not None:
+                values["crop_embeddings"] = np.asarray(crop_embeddings, dtype=np.float32)
+            np.savez_compressed(handle, **values)
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
@@ -98,6 +103,8 @@ def extract_embeddings(
     max_tracks: int | None = None,
     device: str | None = None,
     encoder: Callable[[list[np.ndarray]], np.ndarray] | None = None,
+    store_crop_embeddings: bool = False,
+    local_files_only: bool = False,
 ) -> dict:
     """Extract embeddings, preserving manifest metadata and resumability."""
     if batch_size < 1:
@@ -120,15 +127,23 @@ def extract_embeddings(
     if encoder is None:
         try:
             import torch
-            from transformers import ClapModel, ClapProcessor
+            from transformers import AutoTokenizer, ClapFeatureExtractor, ClapModel, ClapProcessor
         except ImportError as error:
             raise RuntimeError(
                 "CLAP extraction requires torch and transformers. Install requirements.txt "
                 "inside the project environment."
             ) from error
         selected_device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        processor = ClapProcessor.from_pretrained(config.model_name)
-        model = ClapModel.from_pretrained(config.model_name).to(selected_device).eval()
+        feature_extractor = ClapFeatureExtractor.from_pretrained(
+            config.model_name, local_files_only=local_files_only
+        )
+        tokenizer = AutoTokenizer.from_pretrained(
+            config.model_name, local_files_only=local_files_only
+        )
+        processor = ClapProcessor(feature_extractor=feature_extractor, tokenizer=tokenizer)
+        model = ClapModel.from_pretrained(
+            config.model_name, local_files_only=local_files_only
+        ).to(selected_device).eval()
 
         def encoder(crops: list[np.ndarray]) -> np.ndarray:
             inputs = processor(
@@ -146,10 +161,19 @@ def extract_embeddings(
                 result = result.pooler_output
             return result.detach().float().cpu().numpy()
 
-    pending = [
-        row for row in rows
-        if overwrite or not embedding_path(output_root, row).is_file()
-    ]
+    def is_complete(row: dict[str, str]) -> bool:
+        path = embedding_path(output_root, row)
+        if not path.is_file():
+            return False
+        if not store_crop_embeddings:
+            return True
+        try:
+            with np.load(path) as archive:
+                return "crop_embeddings" in archive.files
+        except (OSError, ValueError):
+            return False
+
+    pending = [row for row in rows if overwrite or not is_complete(row)]
     errors: list[dict[str, str]] = []
     processed = 0
     for batch_index, batch in enumerate(_batches(pending, batch_size), start=1):
@@ -182,7 +206,12 @@ def extract_embeddings(
                 for index, (row, _) in enumerate(loaded):
                     start = index * crops_per_track
                     pooled = pool_crop_embeddings(encoded[start : start + crops_per_track])
-                    _write_embedding(embedding_path(output_root, row), pooled)
+                    crops = encoded[start : start + crops_per_track]
+                    crops /= np.linalg.norm(crops, axis=1, keepdims=True).clip(min=1e-12)
+                    _write_embedding(
+                        embedding_path(output_root, row), pooled,
+                        crops if store_crop_embeddings else None,
+                    )
                     processed += 1
             except (OSError, RuntimeError, ValueError) as error:
                 for row, _ in loaded:
@@ -230,6 +259,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-tracks", type=int)
     parser.add_argument("--device")
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument(
+        "--store-crop-embeddings", action="store_true",
+        help="Retain each crop embedding as well as the mean-pooled track embedding",
+    )
+    parser.add_argument(
+        "--local-files-only", action="store_true",
+        help="Use an already cached Hugging Face checkpoint without network checks",
+    )
     return parser
 
 
@@ -239,6 +276,8 @@ def main() -> None:
         args.manifest, args.dataset_root, args.output_root,
         ClapEmbeddingConfig(model_name=args.model_name), args.batch_size,
         args.overwrite, args.max_tracks, args.device,
+        store_crop_embeddings=args.store_crop_embeddings,
+        local_files_only=args.local_files_only,
     )
     print(json.dumps(summary, indent=2))
 

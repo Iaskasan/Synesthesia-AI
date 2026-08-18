@@ -225,6 +225,33 @@ The head trainer defaults to the `liblinear` binary solver and records optimizer
 iterations per label in `metrics.json`, including any labels that reached the
 iteration limit.
 
+Compare prevalence and CLAP zero-shot references with regularized logistic
+heads and a small MLP on a reduced ten-label vocabulary:
+
+```bash
+python -m src.ml.run_clap_diagnostics \
+  --embedding-root /mnt/g/AI/datasets/processed/clap-music-v1
+```
+
+This writes `artifacts/clap_diagnostics/comparison.json` and the best
+validation-selected supervised head. The test split remains sealed unless
+`--evaluate-test` is supplied for a final chosen configuration.
+
+To compare decisions across the three 10-second crops, upgrade the resumable
+embedding cache and rerun the diagnostics with the crop head enabled:
+
+```bash
+python -m src.ml.extract_clap_embeddings \
+  --manifest /mnt/g/AI/datasets/processed/logmel-v1/manifest.csv \
+  --dataset-root /mnt/g/AI/datasets \
+  --output-root /mnt/g/AI/datasets/processed/clap-music-v1 \
+  --batch-size 4 --store-crop-embeddings --local-files-only
+
+python -m src.ml.run_clap_diagnostics \
+  --embedding-root /mnt/g/AI/datasets/processed/clap-music-v1 \
+  --include-crop-head
+```
+
 The application launch command will be added when the Gradio interface
 replaces the current prototype.
 
