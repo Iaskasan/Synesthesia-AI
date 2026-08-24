@@ -237,6 +237,17 @@ This writes `artifacts/clap_diagnostics/comparison.json` and the best
 validation-selected supervised head. The test split remains sealed unless
 `--evaluate-test` is supplied for a final chosen configuration.
 
+After the final test evaluation, create a per-label error report with
+inspectable false-positive and false-negative tracks:
+
+```bash
+python -m src.ml.analyze_clap_errors \
+  --embedding-root /mnt/g/AI/datasets/processed/clap-music-v1
+```
+
+This writes `artifacts/clap_diagnostics/error_analysis.json`. Its test metrics
+are descriptive only; keep model and threshold decisions tied to validation.
+
 To compare decisions across the three 10-second crops, upgrade the resumable
 embedding cache and rerun the diagnostics with the crop head enabled:
 

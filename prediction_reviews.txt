@@ -1,0 +1,69 @@
+Model results for "inspiring" predictions:
+
+FP track_1321711 — No — happy/summer; cheerful but not inspiring
+FP track_1248107 — No — party; not inspiring, also id say not party either (sort of slow dubstep), dataset tag questionable
+FP track_1407657 — No — happy/melodic/upbeat; not inspiring
+FP track_1149153 — Yes — soundscape; inspiring for me, slow and melodic
+Fp track_1110086 — No — energetic; ecan be inspiring, uses a lot of small noises and is pretty driving
+
+
+FN track_1371975 — No — emotional/happy/inspiring/sport; dataset tag seems questionable, not inspiring at all
+FN track_0016664 — Yes — action/epic/inspiring/powerful/uplifting; I can get how it could be inspiring but not for me (just personal), also the dataset tags are questionable (action, epic and powerful)
+FN track_0016665 — Yes — action/epic/inspiring/powerful/uplifting; same as the previous (same artist and same genre)
+FN track_1371977 — Ambiguous — emotional/happy/inspiring/party; subjective, dataset tags seems good
+FN track_1371978 — Ambiguous — emotional/happy/inspiring/party; same artist/genre but not really inspiring (for me atleast)
+
+---
+
+Model results for "dream" predictions:
+
+FP track_1407552 — No — ballad/happy/melodic/romantic; not quite dreamy
+FP track_0945018 — Ambiguous — melodic; id add the party tag so dataset tags questionable
+FP track_0417582 — Yes — travel; actually slow, melodic, fantasy, dreamy and inspiring (some missing dataset tag imo)
+FP track_1209632 — Yes — children; beautiful and inspiring for some (sort of melodic chorus)
+Fp track_1248603 — Ambiguous — energetic/happy; kind of inspiring and melodic (dataset tags seems questionable, I would not classify it as "happy" nor energetic)
+
+
+FN track_1003517 — Yes — dream/sad/upliting; I can get the dream scheme, would fit a dreamy image
+FN track_0425626 — No — dream; definetly energetic (high bpm techno, very repetitive), no quite dreamy tho
+FN track_0447149 — Yes — dream; I would add melodic to the tags but this can be dreamy yes
+FN track_0047391 — Ambiguous — dream; dataset tags are weird because its missing energetic on high bpm techno tracks. This one can be dreamy
+FN track_0425632 — Yes — dream; melodic and energetic too
+
+Final obesrvation, it looks like every techno tracks are classified as dreamy (alteast the ones in the samples i tested)
+
+---
+
+Model results for "sad" predictions:
+
+FP track_1340278 — No — dark; Not sad
+FP track_1035977 — Ambiguous — emotional/nature; not quite sad
+FP track_1110528 — No — happy/uplifting; definetly not sad
+FP track_1404736 — No — melancholic; not sad
+Fp track_0417581 — Ambiguous — drama/emotional; Id say melancholic instead of sad but sad can work too I guess
+
+
+FN track_1003517 — Yes — dream/sad/uplifting; On the edge of ambiguous
+FN track_1003418 — Yes — dream/sad;
+FN track_0425629 — Yes — dream/sad;
+FN track_1255645 — Yes — happy/melancholic/melodic/sad;
+FN track_1255644 — Yes — fast/happy/melodic/sad
+
+---
+
+Model results for "romantic" predictions:
+
+FP track_1046762 — Yes — documentary/travel; dataset tags very questionable (id say sad/melancholic/romantic)
+FP track_1420654 — Yes — dramatic/powerful; also kind of sad/melancholic
+FP track_1361569 — No — dark/drama; I would add dreamy and sad
+FP track_0982408 — No — film;
+Fp track_1062497 — No — calm/christmas/holiday/relaxing; 
+
+
+FN track_0915580 — No — romantic; very questionable dataset tags
+FN track_0915677 — No — romantic; very questionable dataset tags
+FN track_0915740 — No — romantic; very questionable dataset tags
+FN track_1407552 — Yes — ballad/happy/melodic/romantic;
+FN track_0604700 — Yes — emotional/romantic/soft;
+
+Note: the first 3 FN tracks (0915580, 0915677, 0915740) are from the same artist/singer.
