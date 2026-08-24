@@ -23,6 +23,7 @@ from src.audio.load_audio import load_audio
 from src.generation.generate_image import generate_image
 from src.generation.prompt_builder import build_prompt
 from src.ml.inference import ClapMoodClassifier
+from src.ml.review_feedback import PredictionReview
 
 CHECKPOINT = PROJECT_ROOT / "artifacts/clap_diagnostics/selected_head.joblib"
 IMAGE_MODEL = "stable-diffusion-v1-5/stable-diffusion-v1-5"
@@ -129,7 +130,7 @@ def main() -> None:
             "Threshold": round(item.threshold, 3),
             "Detected": "Yes" if item.detected else "No",
         } for item in predictions],
-        hide_index=True, use_container_width=True,
+        hide_index=True, width="stretch",
     )
 
     controls, preview = st.columns([2, 3])
@@ -199,6 +200,44 @@ def main() -> None:
                 "Download settings", result["metadata"],
                 "synesthesia-settings.json", "application/json",
             )
+
+    st.subheader("Help evaluate the classifier")
+    st.caption(
+        "These judgments are subjective. Download them for qualitative analysis; "
+        "user-uploaded feedback is not used to tune validation thresholds."
+    )
+    reviewed = []
+    feedback_columns = st.columns(2)
+    for index, item in enumerate(predictions):
+        with feedback_columns[index % 2]:
+            verdict = st.selectbox(
+                item.label,
+                ["Not reviewed", "Correct", "Incorrect", "Ambiguous"],
+                key=f"review_{hashlib.sha256(data).hexdigest()[:12]}_{item.label}",
+            )
+        if verdict != "Not reviewed":
+            reviewed.append(PredictionReview(
+                label=item.label, probability=item.confidence,
+                threshold=item.threshold, predicted=item.detected,
+                verdict=verdict.lower(), split="unassigned",
+            ).to_dict())
+    review_notes = st.text_input(
+        "Review notes (optional)", key=f"review_notes_{hashlib.sha256(data).hexdigest()[:12]}"
+    )
+    if reviewed:
+        review_export = {
+            "schema_version": 1,
+            "audio_sha256": hashlib.sha256(data).hexdigest(),
+            "source": "user_upload",
+            "notes": review_notes,
+            "reviews": reviewed,
+        }
+        st.download_button(
+            "Download classifier feedback",
+            json.dumps(review_export, indent=2) + "\n",
+            "synesthesia-classifier-feedback.json",
+            "application/json",
+        )
 
 
 if __name__ == "__main__":

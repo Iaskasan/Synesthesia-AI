@@ -277,7 +277,26 @@ also works when Streamlit changes the script import path internally.
 The first run loads the CLAP and Stable Diffusion checkpoints from Hugging
 Face. Later runs reuse the local model caches. The interface exposes model
 scores and validation-tuned decisions, lets the user edit the mood
-interpretation and prompt, and exports reproducibility metadata.
+interpretation and prompt, exports reproducibility metadata, and can export
+structured correct/incorrect/ambiguous classifier feedback.
+
+Feedback on arbitrary user uploads is qualitative and must not be used to tune
+thresholds. Threshold or checkpoint selection must use reviewed validation
+examples only. `src.ml.review_feedback.suggest_validation_thresholds` enforces
+that boundary and excludes ambiguous judgments; the sealed test reviews remain
+descriptive evidence only.
+
+Create a reproducible random validation-review queue with:
+
+```bash
+python -m src.ml.prepare_validation_reviews \
+  --embedding-root /mnt/g/AI/datasets/processed/clap-music-v1 \
+  --examples-per-label 20
+```
+
+Listen to the referenced audio and fill each CSV `verdict` with `correct`,
+`incorrect`, or `ambiguous`. Random sampling is intentional: FP/FN-only samples
+are useful for diagnosis but are biased inputs for threshold selection.
 
 ## Delivery plan
 
