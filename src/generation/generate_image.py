@@ -18,7 +18,11 @@ def _load_pipeline(model_id: str, device: str):
 
 def generate_image(
     prompt: str,
-    model_id: str = "runwayml/stable-diffusion-v1-5",
+    model_id: str = "stable-diffusion-v1-5/stable-diffusion-v1-5",
+    *,
+    seed: int = 0,
+    width: int = 512,
+    height: int = 512,
 ):
     """
     Generate an image from a text prompt.
@@ -26,13 +30,21 @@ def generate_image(
     Args:
         prompt (str): Text description for the image.
         model_id (str): HuggingFace model ID.
+        seed: Reproducible diffusion seed.
+        width: Output width in pixels, divisible by eight.
+        height: Output height in pixels, divisible by eight.
 
     Returns:
         PIL.Image: Generated image.
     """
     device = "cuda" if torch.cuda.is_available() else "cpu"
     pipe = _load_pipeline(model_id, device)
-    image = pipe(prompt).images[0]
+    if width % 8 or height % 8:
+        raise ValueError("Image width and height must be divisible by 8.")
+    generator = torch.Generator(device=device).manual_seed(seed)
+    image = pipe(
+        prompt, generator=generator, width=width, height=height
+    ).images[0]
     return image
 
 

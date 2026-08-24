@@ -263,8 +263,21 @@ python -m src.ml.run_clap_diagnostics \
   --include-crop-head
 ```
 
-The application launch command will be added when the Gradio interface
-replaces the current prototype.
+Launch the Streamlit MVP from the repository root after training the selected
+CLAP head (or placing it at
+`artifacts/clap_diagnostics/selected_head.joblib`):
+
+```bash
+streamlit run src/app/app.py
+```
+
+The app resolves model artifacts relative to the repository, so this command
+also works when Streamlit changes the script import path internally.
+
+The first run loads the CLAP and Stable Diffusion checkpoints from Hugging
+Face. Later runs reuse the local model caches. The interface exposes model
+scores and validation-tuned decisions, lets the user edit the mood
+interpretation and prompt, and exports reproducibility metadata.
 
 ## Delivery plan
 
