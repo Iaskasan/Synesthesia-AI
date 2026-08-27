@@ -21,6 +21,8 @@ def sample_review_rows(
     metadata: list[dict],
     examples_per_label: int,
     seed: int,
+    selected_labels: list[str] | None = None,
+    excluded_pairs: set[tuple[str, str]] | None = None,
 ) -> list[dict]:
     """Randomly sample validation tracks independently for each label."""
     if examples_per_label < 1:
@@ -29,11 +31,21 @@ def sample_review_rows(
         raise ValueError("Prediction, truth, and label shapes do not match.")
     if probabilities.shape[0] != len(metadata) or len(thresholds) != len(labels):
         raise ValueError("Metadata or threshold lengths do not match predictions.")
+    selected_labels = selected_labels or labels
+    unknown = sorted(set(selected_labels).difference(labels))
+    if unknown:
+        raise ValueError("Unknown labels: " + ", ".join(unknown))
+    excluded_pairs = excluded_pairs or set()
     rng = np.random.default_rng(seed)
     rows = []
-    sample_size = min(examples_per_label, len(metadata))
-    for column, label in enumerate(labels):
-        for index in rng.choice(len(metadata), size=sample_size, replace=False):
+    for label in selected_labels:
+        column = labels.index(label)
+        eligible = np.asarray([
+            index for index, item in enumerate(metadata)
+            if (item["track_id"], label) not in excluded_pairs
+        ])
+        sample_size = min(examples_per_label, len(eligible))
+        for index in rng.choice(eligible, size=sample_size, replace=False):
             probability = float(probabilities[index, column])
             rows.append({
                 "split": "validation",
@@ -59,9 +71,15 @@ def run(args: argparse.Namespace) -> list[dict]:
         labels, use_crops=bool(bundle.get("crop_aggregation")),
     )
     probabilities = predict_probabilities(bundle, features)
+    excluded_pairs: set[tuple[str, str]] = set()
+    if args.exclude_queue:
+        with args.exclude_queue.open(encoding="utf-8", newline="") as handle:
+            excluded_pairs = {
+                (row["track_id"], row["label"]) for row in csv.DictReader(handle)
+            }
     rows = sample_review_rows(
         probabilities, truth, labels, np.asarray(bundle["thresholds"]), metadata,
-        args.examples_per_label, args.seed,
+        args.examples_per_label, args.seed, args.labels, excluded_pairs,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8", newline="") as handle:
@@ -84,6 +102,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--examples-per-label", type=int, default=20)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--labels", nargs="+",
+        help="Optional subset of model labels to review (default: every label).",
+    )
+    parser.add_argument(
+        "--exclude-queue", type=Path,
+        help="CSV whose existing track-label pairs must not be sampled again.",
+    )
     return parser
 
 
