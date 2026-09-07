@@ -45,3 +45,14 @@ python -m src.data.preprocess_dataset \
 
 The output contains one compressed `.npz` per track, `manifest.csv`,
 `preprocess_config.json`, `summary.json`, and `errors.csv`.
+
+## Start the Streamlit app
+
+From the repository root, run:
+
+```bash
+streamlit run src/app/app.py
+```
+
+Streamlit will print the local URL to open in your browser (usually
+`http://localhost:8501`).

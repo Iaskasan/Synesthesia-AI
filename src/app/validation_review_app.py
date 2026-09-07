@@ -11,8 +11,13 @@ import streamlit as st
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_QUEUE = PROJECT_ROOT / "artifacts/clap_diagnostics/validation_review_queue.csv"
-DEFAULT_AUDIO_ROOT = Path("/mnt/g/AI/datasets")
+DEFAULT_QUEUE = Path(os.environ.get(
+    "SYNESTHESIA_REVIEW_QUEUE",
+    PROJECT_ROOT / "artifacts/clap_diagnostics/validation_review_queue_followup.csv",
+))
+DEFAULT_AUDIO_ROOT = Path(os.environ.get(
+    "SYNESTHESIA_AUDIO_ROOT", "/mnt/g/AI/datasets",
+))
 REQUIRED_COLUMNS = {
     "track_id", "audio_path", "label", "probability", "threshold",
     "predicted", "dataset_target", "dataset_tags", "verdict", "notes",
