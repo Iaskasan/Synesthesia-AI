@@ -10,6 +10,11 @@ import numpy as np
 from src.ml.extract_clap_embeddings import ClapEmbeddingConfig, fixed_crops
 
 
+# Retain checkpoint columns for compatibility with historical training and reviews.
+# Manual validation found this label too ambiguous for automatic interpretation.
+INACTIVE_LABELS = frozenset({"inspiring"})
+
+
 @dataclass(frozen=True)
 class MoodPrediction:
     """One mood score and the validation-tuned decision made from it."""
@@ -23,7 +28,7 @@ class MoodPrediction:
 def rank_predictions(
     labels: list[str], probabilities: np.ndarray, thresholds: np.ndarray
 ) -> list[MoodPrediction]:
-    """Validate and rank one row of multilabel probabilities."""
+    """Validate a full checkpoint row and rank its active mood predictions."""
     scores = np.asarray(probabilities, dtype=float).reshape(-1)
     cutoffs = np.asarray(thresholds, dtype=float).reshape(-1)
     if len(labels) != len(scores) or len(scores) != len(cutoffs):
@@ -33,6 +38,7 @@ def rank_predictions(
     predictions = [
         MoodPrediction(label, float(score), float(threshold), bool(score >= threshold))
         for label, score, threshold in zip(labels, scores, cutoffs)
+        if label not in INACTIVE_LABELS
     ]
     return sorted(predictions, key=lambda item: item.confidence, reverse=True)
 
@@ -134,4 +140,3 @@ class ClapMoodClassifier:
             pooled /= np.linalg.norm(pooled).clip(min=1e-12)
             scores = np.asarray(self.model.predict_proba(pooled[None, :]))[0]
         return rank_predictions(self.labels, scores, self.thresholds)
-

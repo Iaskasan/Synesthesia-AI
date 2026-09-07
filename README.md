@@ -280,6 +280,14 @@ scores and validation-tuned decisions, lets the user edit the mood
 interpretation and prompt, exports reproducibility metadata, and can export
 structured correct/incorrect/ambiguous classifier feedback.
 
+The `inspiring` label is excluded from automatic inference outputs following the
+completed manual validation review: 12 of 50 judgments were ambiguous, and only
+8 of 42 positive predictions were accepted. This also removes it from the app's
+mood choices, automatic image prompts, and prediction exports. Existing checkpoint
+columns, dataset annotations, and review artifacts are retained for reproducibility;
+historical training and diagnostic metrics still include this label. Other mood
+scores and thresholds are unchanged.
+
 Feedback on arbitrary user uploads is qualitative and must not be used to tune
 thresholds. Threshold or checkpoint selection must use reviewed validation
 examples only. `src.ml.review_feedback.suggest_validation_thresholds` enforces

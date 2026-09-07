@@ -13,7 +13,7 @@ import streamlit as st
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_QUEUE = Path(os.environ.get(
     "SYNESTHESIA_REVIEW_QUEUE",
-    PROJECT_ROOT / "artifacts/clap_diagnostics/validation_review_queue_followup.csv",
+    PROJECT_ROOT / "artifacts/clap_diagnostics/validation_review_queue_calibration_check.csv",
 ))
 DEFAULT_AUDIO_ROOT = Path(os.environ.get(
     "SYNESTHESIA_AUDIO_ROOT", "/mnt/g/AI/datasets",
@@ -110,10 +110,16 @@ def main() -> None:
         st.error(f"Audio file not found: {audio_path}")
 
     predicted = row["predicted"].lower() == "true"
+    reference = (
+        "The dataset tag says" if not row["probability"].strip()
+        else "The model says"
+    )
     st.info(
-        f"The model says **{'YES' if predicted else 'NO'}** for “{row['label']}”. "
+        f"{reference} **{'YES' if predicted else 'NO'}** for “{row['label']}”. "
         "Choose whether that yes/no decision is correct."
     )
+    if not row["probability"].strip():
+        st.caption("Annotation review only: no model score or threshold is available.")
 
     current = row["verdict"] or "not reviewed"
     st.caption(f"Current verdict: **{current}**")
