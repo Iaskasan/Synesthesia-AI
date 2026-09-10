@@ -164,8 +164,14 @@ def main() -> None:
 
     with st.expander("Details (optional — review by ear first)"):
         st.write({
-            "probability": round(float(row["probability"]), 3),
-            "threshold": round(float(row["threshold"]), 3),
+            "probability": (
+                round(float(row["probability"]), 3)
+                if row["probability"].strip() else "Not available"
+            ),
+            "threshold": (
+                round(float(row["threshold"]), 3)
+                if row["threshold"].strip() else "Not available"
+            ),
             "dataset_target": row["dataset_target"],
             "dataset_tags": row["dataset_tags"],
             "audio_path": row["audio_path"],

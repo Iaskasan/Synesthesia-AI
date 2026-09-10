@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 
 import pytest
 
@@ -41,3 +42,25 @@ def test_load_queue_rejects_invalid_verdict(tmp_path):
 
     with pytest.raises(ValueError, match="invalid verdicts"):
         load_queue(path)
+
+
+def test_annotation_review_renders_and_saves_without_model_scores(tmp_path, monkeypatch):
+    from streamlit.testing.v1 import AppTest
+
+    path = tmp_path / "queue.csv"
+    annotation = dict(row(), label="space", probability="", threshold="",
+                      predicted="false")
+    save_queue(path, [annotation], FIELDS)
+    monkeypatch.setenv("SYNESTHESIA_REVIEW_QUEUE", str(path))
+    app = AppTest.from_file(
+        str(Path(__file__).resolve().parents[1] / "src/app/validation_review_app.py")
+    ).run()
+
+    assert not app.exception
+    assert "The dataset tag says **NO**" in app.info[0].value
+    assert "Not available" in app.json[0].value
+    app.button[1].click().run()
+    assert not app.exception
+    loaded, _ = load_queue(path)
+    assert loaded[0]["verdict"] == "incorrect"
+    assert loaded[0]["probability"] == loaded[0]["threshold"] == ""
