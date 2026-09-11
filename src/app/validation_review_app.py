@@ -13,7 +13,7 @@ import streamlit as st
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_QUEUE = Path(os.environ.get(
     "SYNESTHESIA_REVIEW_QUEUE",
-    PROJECT_ROOT / "artifacts/clap_diagnostics/validation_review_queue_calibration_check.csv",
+    PROJECT_ROOT / "artifacts/clap_space_candidate/space_training_review_queue.csv",
 ))
 DEFAULT_AUDIO_ROOT = Path(os.environ.get(
     "SYNESTHESIA_AUDIO_ROOT", "/mnt/g/AI/datasets",
