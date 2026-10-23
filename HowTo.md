@@ -1,8 +1,46 @@
-To download the dataset into the Windows `C:` drive from WSL:
+## Reuse the existing files on this computer
+
+The current checkout is `/root/RNCP-Synesthesia/Synesthesia-AI`. Activate its
+environment before running the commands below:
+
+```bash
+cd /root/RNCP-Synesthesia/Synesthesia-AI
+source .venv/bin/activate
+```
+
+The dataset tools have been restored from the original local checkout at
+`/root/Synesthesia-AI/mtg-jamendo-dataset`, at the exact commit recorded by this
+repository. The selected classifier has been copied from the original project's
+`artifacts/clap_diagnostics/selected_head.joblib` into the same relative location
+in this project. The original files were left unchanged.
+
+Existing data stays on the mounted Windows drive; no audio or embeddings need
+to be copied or downloaded:
+
+| Files | Path |
+| --- | --- |
+| Audio | `/mnt/g/AI/Datasets` |
+| Log-mel preprocessing | `/mnt/g/AI/Datasets/processed/logmel-v1` |
+| CLAP embeddings | `/mnt/g/AI/Datasets/processed/clap-music-v1` |
+| Official metadata/splits | `mtg-jamendo-dataset/data` |
+| Selected classifier | `artifacts/clap_diagnostics/selected_head.joblib` |
+
+The restored classifier was trained with scikit-learn 1.3.2. The main requirements
+pin that version and a compatible NumPy version to avoid a pickle-version mismatch.
+Do not install the old dataset repository's entire requirements file over this
+environment; it contains unrelated historical package pins.
+
+## Download only if the existing data is unavailable
+
+The restored upstream downloader uses an underscore in the dataset name and a
+positional output directory. Its CLI does not implement the newer aliases or
+partial-download resumption expected by `tests/test_download_cli.py`.
+
+To download into a different, prepared directory if needed:
 
 ```bash
 cd mtg-jamendo-dataset
-./scripts/download/download.py --dataset autotagging-moodtheme --type audio-low --from mtg-fast --outputdir /mnt/c/AI/dataset --unpack --remove
+python scripts/download/download.py --dataset autotagging_moodtheme --type audio-low --from mtg-fast /path/to/new/dataset --unpack --remove
 cd ..
 ```
 
@@ -12,7 +50,7 @@ frequencies, and writes the frozen 20-label baseline selection:
 
 ```bash
 python -m src.data.audit_dataset \
-  --dataset-root /mnt/c/AI/dataset \
+  --dataset-root /mnt/g/AI/Datasets \
   --metadata-root mtg-jamendo-dataset/data \
   --output-dir audit
 ```

@@ -1,7 +1,8 @@
 # Core scientific stack
-numpy
+numpy>=1.24,<2
 matplotlib
-scikit-learn
+# Match the existing selected_head.joblib training environment.
+scikit-learn==1.3.2
 
 # Audio processing
 librosa
@@ -18,3 +19,6 @@ accelerate
 torch
 torchvision
 torchaudio
+
+# Import dependency of the restored MTG-Jamendo downloader.
+gdown>=5,<6
