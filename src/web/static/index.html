@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Turn music into a visual interpretation. Your music, your mood, your creative direction.">
+  <title>Synesthesia — Music into worlds</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Synesthesia home"><span class="brand-icon">s</span>synesthesia<span class="ai">AI</span></a>
+    <div class="top-actions"><span class="local-badge"><span></span> Local creative studio</span><span id="identity"></span><button id="logout" class="quiet" hidden>Sign out</button></div>
+  </header>
+  <main id="main" tabindex="-1">
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <section id="welcome" class="welcome">
+      <div class="intro">
+        <p class="eyebrow">A different way to see sound</p>
+        <h1>Your music.<br>A world of <em>possibility.</em></h1>
+        <p class="lead">Explore the moods hidden in a melody. Shape an interpretation. Turn a moment of sound into something you can see.</p>
+        <div class="sound-art" aria-hidden="true"><div class="orb"></div><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span>Sound → feeling → image</span></div>
+        <p class="fine">AI offers an interpretation. You make the creative decisions.</p>
+      </div>
+      <section class="auth-card" aria-labelledby="auth-title">
+        <p class="eyebrow">Your creative space</p><h2 id="auth-title">Welcome back.</h2><p id="auth-caption">Sign in to pick up where you left off.</p>
+        <form id="auth-form">
+          <label>Email<input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128" placeholder="At least 12 characters"></label>
+          <button class="primary full" type="submit" id="auth-submit">Sign in <span>↗</span></button>
+        </form>
+        <button id="auth-toggle" class="text-button">New here? Create an account</button>
+        <div class="privacy-note">Private by default. Your projects and generated images are visible only to your account.</div>
+      </section>
+    </section>
+    <section id="workspace" hidden>
+      <div class="workspace-heading"><div><p class="eyebrow">The listening room</p><h1>Your projects<span class="accent">.</span></h1><p class="muted">Small moments of music. Entire worlds to explore.</p></div><span class="outline-label">MUSIC → VISUAL ART</span></div>
+      <form id="project-form" class="new-project"><label for="project-title">Start with a new idea</label><div><input id="project-title" name="title" required maxlength="120" placeholder="Give your project a name…"><button class="primary" type="submit">Create project <span>＋</span></button></div></form>
+      <div class="section-heading"><h2>Your collection</h2><span id="project-count" class="muted"></span></div><div id="projects" class="project-grid"></div>
+    </section>
+    <section id="studio" hidden>
+      <button id="back" class="text-button">← All projects</button>
+      <div class="studio-heading"><div><p class="eyebrow">Creation studio</p><h1 id="studio-title"></h1></div><div class="button-row"><button id="rename" class="quiet">Rename</button><button id="delete" class="quiet danger">Delete project</button></div></div>
+      <div class="studio-grid">
+        <div>
+          <section class="panel"><div class="step-title"><span>01</span><h2>Start with sound</h2></div><p class="muted">Choose up to 30 seconds that speak to you.</p>
+            <form id="upload-form">
+              <label class="upload-zone">Drop into a new world<input id="audio-file" name="file" type="file" accept=".wav,.mp3,.flac,.ogg,.m4a" required><small>WAV, MP3, FLAC, OGG or M4A · up to 25 MB</small></label>
+              <audio id="audio-preview" controls hidden></audio>
+              <div class="two-col"><label>Start (seconds)<input name="start_seconds" type="number" value="0" min="0" max="86400" step="0.1" required></label><label>Length (seconds)<input name="duration_seconds" type="number" value="30" min="0.1" max="30" step="0.1" required></label></div>
+              <label class="check"><input name="retain" type="checkbox"> Keep source audio with this project</label><p class="fine">Otherwise, source audio is removed after processing. Saved analyses and images remain.</p>
+              <button class="primary full" type="submit">Analyze excerpt <span>↗</span></button>
+            </form>
+          </section>
+          <section class="panel"><div class="step-title"><span>02</span><h2>Listen to the mood</h2></div><div id="analyses"></div></section>
+        </div>
+        <div>
+          <section class="panel"><div class="step-title"><span>03</span><h2>Shape your world</h2></div><p class="muted">Start with the music. Make it yours.</p>
+            <form id="creative-form"><fieldset id="creative-fields" disabled>
+              <label>Source analysis<select id="analysis-select" required></select></label>
+              <label for="mood-select">Mood palette <small>Choose 1–5 moods (Ctrl / ⌘ to select multiple)</small></label><select id="mood-select" multiple size="5" required></select>
+              <div class="two-col"><label>Visual style<select name="style"><option>digital art</option><option>watercolor</option><option>cinematic photography</option><option>surrealism</option></select></label><label>Canvas<select id="dimensions"><option value="512,512">Square · 1:1</option><option value="640,480">Landscape · 4:3</option><option value="480,640">Portrait · 3:4</option></select></label></div>
+              <label>Subject<input name="subject" value="an abstract landscape" maxlength="300" required></label>
+              <div class="two-col"><label>Abstraction<input name="abstraction" type="range" min="0" max="1" step="0.05" value="0.7"></label><label>Music influence<input name="music_influence" type="range" min="0" max="1" step="0.05" value="0.8"></label></div>
+              <button id="compose" class="quiet full" type="button">Compose prompt from my choices</button>
+              <label>Your image prompt<textarea name="prompt" rows="5" required maxlength="3000" placeholder="Compose a prompt above, then refine it here…"></textarea></label>
+              <label>Seed <small>Save a starting point for repeatable experiments</small><input name="seed" type="number" value="42" min="0" max="2147483647" required></label>
+              <button class="primary full" type="submit">Generate artwork <span>✧</span></button>
+            </fieldset></form><p id="creative-hint" class="fine">Complete an analysis to unlock your creative controls.</p>
+          </section>
+        </div>
+      </div>
+      <div class="section-heading"><div><p class="eyebrow">Made from a moment</p><h2>Your visual worlds</h2></div><span class="outline-label">AI-GENERATED ARTWORK</span></div><div id="generations" class="gallery"></div>
+    </section>
+  </main>
+  <footer><span>Synesthesia AI</span><span>Music is the beginning. You decide where it goes.</span></footer>
+</body>
+</html>

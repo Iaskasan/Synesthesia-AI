@@ -14,7 +14,7 @@ diffusers
 transformers
 accelerate
 
-# PyTorch with GPU (CUDA 12.1) support
+# PyTorch GPU stack (CUDA runtime is determined by the selected wheels)
 torch
 torchvision
 torchaudio

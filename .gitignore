@@ -32,4 +32,5 @@ outputs/
 dataset/
 datasets/
 NextCommand.md
-docs/
+docs/*
+!docs/full-application-design.md

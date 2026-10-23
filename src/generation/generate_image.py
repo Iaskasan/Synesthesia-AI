@@ -10,9 +10,9 @@ from diffusers import StableDiffusionPipeline
 
 
 @lru_cache(maxsize=2)
-def _load_pipeline(model_id: str, device: str):
+def _load_pipeline(model_id: str, device: str, revision: str | None = None):
     dtype = torch.float16 if device == "cuda" else torch.float32
-    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=dtype)
+    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=dtype, revision=revision)
     return pipe.to(device)
 
 
@@ -23,6 +23,7 @@ def generate_image(
     seed: int = 0,
     width: int = 512,
     height: int = 512,
+    revision: str | None = None,
 ):
     """
     Generate an image from a text prompt.
@@ -31,6 +32,7 @@ def generate_image(
         prompt (str): Text description for the image.
         model_id (str): HuggingFace model ID.
         seed: Reproducible diffusion seed.
+        revision: Optional immutable Hugging Face revision for reproducibility.
         width: Output width in pixels, divisible by eight.
         height: Output height in pixels, divisible by eight.
 
@@ -38,7 +40,7 @@ def generate_image(
         PIL.Image: Generated image.
     """
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    pipe = _load_pipeline(model_id, device)
+    pipe = _load_pipeline(model_id, device, revision)
     if width % 8 or height % 8:
         raise ValueError("Image width and height must be divisible by 8.")
     generator = torch.Generator(device=device).manual_seed(seed)

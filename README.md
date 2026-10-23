@@ -15,6 +15,20 @@ interpretation rather than a black-box generator.
 For the complete rationale, scope, ethics, and delivery plan, see the
 [project pitch](SynesthesiaAI%20Project%20Pitch.md).
 
+## Full CDA web application
+
+A separate multi-user application now lives in `src/web/`, with a responsive
+browser interface, a FastAPI backend, PostgreSQL relationships and Alembic
+migrations, and a local GPU worker reusing the existing AI pipeline. It adds
+accounts, private projects, saved analyses, generation history, and exports.
+
+See [WEB_APP.md](WEB_APP.md) for setup and validation limits, and the
+[application design](docs/full-application-design.md) for the relational model.
+The original Streamlit application remains available.
+[CDA_REQUIREMENTS.md](CDA_REQUIREMENTS.md) maps the supplied certification notes
+to implemented features and remaining work. The portfolio scope below
+describes the earlier single-user ML milestone, not the new CDA application.
+
 ## Portfolio MVP
 
 The committed MVP will:
@@ -180,7 +194,7 @@ Create and activate an environment:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-web-dev.txt
 ```
 
 Run the automated tests:
